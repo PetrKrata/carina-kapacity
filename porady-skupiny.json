@@ -6,58 +6,113 @@
     "SS": "SŠ"
   },
   "porady": {
-    "3-2-1 START!": [
-      "MS",
-      "ZS1"
-    ],
-    "Astrofyzika: O původu prvků": [
-      "ZS2",
-      "SS"
-    ],
-    "Dobrodružství ve Sluneční soustavě": [
-      "ZS1",
-      "ZS2"
-    ],
     "Hurvínkova vesmírná odysea": [
       "MS",
       "ZS1"
     ],
-    "Korálový útes 360": [
+
+    "Zvídavá Eva": [
+      "MS",
+      "ZS1"
+    ],
+
+    "Polaris": [
       "MS",
       "ZS1",
       "ZS2"
     ],
+
+    "Polaris 2": [
+      "MS",
+      "ZS1",
+      "ZS2"
+    ],
+
+    "Polaris 2 – Lucie": [
+      "MS",
+      "ZS1",
+      "ZS2"
+    ],
+
+    "3-2-1 START!": [
+      "MS",
+      "ZS1",
+      "ZS2"
+    ],
+
+    "Dobrodružství ve Sluneční soustavě": [
+      "ZS1",
+      "ZS2"
+    ],
+
     "Pohyby Země": [
       "ZS1",
       "ZS2"
     ],
-    "Polaris": [
-      "ZS1",
-      "ZS2"
-    ],
-    "Polaris 2 – Lucie": [
-      "ZS1",
-      "ZS2"
-    ],
-    "Vesmír v kapce života": [
-      "ZS2",
-      "SS"
-    ],
-    "Voyager": [
-      "ZS2",
-      "SS"
-    ],
+
     "Voyager - verze 2.0": [
+      "ZS1",
       "ZS2",
       "SS"
     ],
+
+    "Planety v hrsti": [
+      "ZS1"
+    ],
+
+    "Naší přírodou": [
+      "ZS1",
+      "ZS2"
+    ],
+
+    "Jak se dělá kometa (1. až 4. třída ZŠ)": [
+      "ZS1"
+    ],
+
+    "S Hurvínkem do vesmíru": [
+      "ZS1",
+      "ZS2"
+    ],
+
+    "Jak se dělá kometa (5. až 9. třída ZŠ)": [
+      "ZS1",
+      "ZS2"
+    ],
+
     "Zrození Země": [
       "ZS2",
       "SS"
     ],
-    "Zvídavá Eva": [
-      "MS",
-      "ZS1"
+
+    "Korálový útes 360": [
+      "ZS2",
+      "SS"
+    ],
+
+    "Země a její sféry": [
+      "ZS2"
+    ],
+
+    "Po stopách energie": [
+      "ZS2"
+    ],
+
+    "Laboratoř fyziky": [
+      "ZS2",
+      "SS"
+    ],
+
+    "Vesmír v kapce života": [
+      "ZS2",
+      "SS"
+    ],
+
+    "Osudová přitažlivost": [
+      "SS"
+    ],
+
+    "Astrofyzika: O původu prvků": [
+      "SS"
     ]
   }
 }
