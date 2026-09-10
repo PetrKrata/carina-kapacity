@@ -21,12 +21,6 @@
     const VYCHOZI_OD = '2026-09';
     const VYCHOZI_DO = '2027-01';
 
-    const VYCHOZI_CASY = [
-        '09:00',
-        '10:15',
-        '11:30'
-    ];
-
     // JavaScript getDay():
     // 0 = ne
     // 1 = po
@@ -1987,10 +1981,9 @@
             checkbox.value =
                 cas;
 
+            // Všechny nalezené časy jsou výchozím stavem zaškrtnuté
             checkbox.checked =
-                VYCHOZI_CASY.includes(
-                    cas
-                );
+                true;
 
 
             checkbox.addEventListener(
@@ -2381,6 +2374,9 @@
             return false;
         }
 
+
+        // Všechny školy = žádné omezení.
+        // Díky tomu nezmizí ani nový nezařazený pořad.
 
         if (
             checkboxy.length > 0 &&
@@ -3278,6 +3274,10 @@
                 }
             });
 
+
+            // =================================================
+            // NAPLNĚNÍ FILTRŮ
+            // =================================================
 
             naplnFiltrPoradu();
 
