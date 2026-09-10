@@ -176,11 +176,24 @@
 
 
     // =========================================================
-    // 2. VÝCHOZÍ OBDOBÍ
+    // 2. VÝCHOZÍ NASTAVENÍ
     // =========================================================
 
     const VYCHOZI_OD = '2026-09';
     const VYCHOZI_DO = '2027-01';
+
+    const VYCHOZI_CASY = [
+        '09:00',
+        '10:15',
+        '11:30'
+    ];
+
+    const VYCHOZI_DNY = new Set([
+        2, // úterý
+        3, // středa
+        4, // čtvrtek
+        5  // pátek
+    ]);
 
 
     // =========================================================
@@ -896,9 +909,7 @@
         }
 
 
-        /* =====================================================
-           OVLÁDACÍ PANEL
-           ===================================================== */
+        /* OVLÁDACÍ PANEL */
 
         #${PANEL_ID} .ovladani {
             display: flex;
@@ -978,9 +989,7 @@
         }
 
 
-        /* =====================================================
-           FILTR POŘADU
-           ===================================================== */
+        /* FILTR POŘADU */
 
         #${PANEL_ID} .porad-label {
             display: flex;
@@ -996,9 +1005,7 @@
         }
 
 
-        /* =====================================================
-           ROZBALOVACÍ FILTRY
-           ===================================================== */
+        /* ROZBALOVACÍ FILTRY */
 
         #${PANEL_ID} details.filtr {
             position: relative;
@@ -1072,9 +1079,7 @@
         }
 
 
-        /* =====================================================
-           STAV
-           ===================================================== */
+        /* STAV */
 
         #${PANEL_ID} .status {
             min-height: 24px;
@@ -1095,9 +1100,7 @@
         }
 
 
-        /* =====================================================
-           TABULKA
-           ===================================================== */
+        /* TABULKA */
 
         #${PANEL_ID} table {
             width: 100%;
@@ -1200,10 +1203,6 @@
         }
 
 
-        /* =====================================================
-           MENŠÍ OBRAZOVKY
-           ===================================================== */
-
         @media (max-width: 900px) {
 
             #${PANEL_ID} .ovladani-radek {
@@ -1270,9 +1269,7 @@
             <div class="ovladani">
 
 
-                <!-- ==========================================
-                     PRVNÍ ŘÁDEK
-                     ========================================== -->
+                <!-- PRVNÍ ŘÁDEK -->
 
                 <div class="ovladani-radek">
 
@@ -1332,18 +1329,14 @@
 
 
                     <button id="hledat">
-
                         PROHLEDAT OBDOBÍ
-
                     </button>
 
 
                 </div>
 
 
-                <!-- ==========================================
-                     DRUHÝ ŘÁDEK
-                     ========================================== -->
+                <!-- DRUHÝ ŘÁDEK -->
 
                 <div class="ovladani-radek">
 
@@ -1353,7 +1346,7 @@
                     <details class="filtr">
 
                         <summary id="souhrn-casy">
-                            Časy: všechny
+                            Časy
                         </summary>
 
                         <div
@@ -1375,7 +1368,7 @@
                     <details class="filtr">
 
                         <summary id="souhrn-dny">
-                            Dny: všechny
+                            Dny
                         </summary>
 
 
@@ -1386,100 +1379,76 @@
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="1"
-                                    checked
                                 >
-
                                 pondělí
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="2"
                                     checked
                                 >
-
                                 úterý
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="3"
                                     checked
                                 >
-
                                 středa
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="4"
                                     checked
                                 >
-
                                 čtvrtek
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="5"
                                     checked
                                 >
-
                                 pátek
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="6"
-                                    checked
                                 >
-
                                 sobota
-
                             </label>
 
 
                             <label>
-
                                 <input
                                     type="checkbox"
                                     class="filtr-den"
                                     value="0"
-                                    checked
                                 >
-
                                 neděle
-
                             </label>
 
 
@@ -1695,7 +1664,9 @@
 
 
                 checkbox.checked =
-                    true;
+                    VYCHOZI_CASY.includes(
+                        cas
+                    );
 
 
                 checkbox.addEventListener(
@@ -2749,7 +2720,7 @@
 
 
             // -------------------------------------------------
-            // VŠECHNY DNY ZNOVU ZAPNOUT
+            // NASTAVIT VÝCHOZÍ DNY
             // -------------------------------------------------
 
             document.querySelectorAll(
@@ -2759,7 +2730,11 @@
                 checkbox => {
 
                     checkbox.checked =
-                        true;
+                        VYCHOZI_DNY.has(
+                            Number(
+                                checkbox.value
+                            )
+                        );
                 }
             );
 
@@ -3076,8 +3051,24 @@
 
 
     // =========================================================
-    // VÝCHOZÍ STAV
+    // VÝCHOZÍ STAV DNŮ
     // =========================================================
+
+    document.querySelectorAll(
+        `#${PANEL_ID} .filtr-den`
+    )
+    .forEach(
+        checkbox => {
+
+            checkbox.checked =
+                VYCHOZI_DNY.has(
+                    Number(
+                        checkbox.value
+                    )
+                );
+        }
+    );
+
 
     aktualizujSouhrnDnu();
 
