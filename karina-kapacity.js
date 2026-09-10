@@ -200,7 +200,6 @@
 
     function zjistiResource() {
 
-        // 1. Aktuální URL
         try {
 
             const url =
@@ -221,7 +220,6 @@
         } catch (e) {}
 
 
-        // 2. Odkazy na stránce
         for (
             const odkaz
             of document.querySelectorAll('a[href]')
@@ -251,7 +249,6 @@
         }
 
 
-        // 3. Input
         const input =
             document.querySelector(
                 '[name="resource"]'
@@ -270,7 +267,6 @@
         }
 
 
-        // 4. data-resource
         const element =
             document.querySelector(
                 '[data-resource]'
@@ -289,7 +285,6 @@
         }
 
 
-        // 5. localStorage
         return nactiUlozenyResource();
     }
 
@@ -1627,28 +1622,6 @@
         <div class="ovladani-radek">
 
 
-            <!-- ČASY -->
-
-            <details class="filtr">
-
-                <summary id="souhrn-casy">
-                    Časy
-                </summary>
-
-                <div
-                    id="filtr-casy"
-                    class="filtr-menu"
-                >
-
-                    <label>
-                        Nejdříve prohledej období.
-                    </label>
-
-                </div>
-
-            </details>
-
-
             <!-- DNY -->
 
             <details class="filtr">
@@ -1733,6 +1706,28 @@
                             value="0"
                         >
                         neděle
+                    </label>
+
+                </div>
+
+            </details>
+
+
+            <!-- ČASY -->
+
+            <details class="filtr">
+
+                <summary id="souhrn-casy">
+                    Časy
+                </summary>
+
+                <div
+                    id="filtr-casy"
+                    class="filtr-menu"
+                >
+
+                    <label>
+                        Nejdříve prohledej období.
                     </label>
 
                 </div>
@@ -2387,9 +2382,6 @@
         }
 
 
-        // Všechny školy = žádné omezení.
-        // Díky tomu nezmizí ani případný nový nezařazený pořad.
-
         if (
             checkboxy.length > 0 &&
             vybraneSkoly.size ===
@@ -2740,9 +2732,7 @@
             vysledky.innerHTML = `
 
 <div class="bez-vysledku">
-
     Pro nastavené filtry nebyly nalezeny žádné termíny.
-
 </div>
 
 `;
@@ -2868,22 +2858,18 @@
     <td>
 
         <strong>
-
             ${escapeHTML(
                 porad.volno
             )}
-
         </strong>
 
     </td>
 
 
     <td>
-
         ${escapeHTML(
             porad.celkem
         )}
-
     </td>
 
 
@@ -3000,10 +2986,6 @@
         );
 
 
-        // -----------------------------------------------------
-        // Kontrola počtu žáků
-        // -----------------------------------------------------
-
         if (
             !Number.isInteger(
                 pocetZaku
@@ -3032,10 +3014,6 @@
             return;
         }
 
-
-        // -----------------------------------------------------
-        // Kontrola období
-        // -----------------------------------------------------
 
         if (
             !od ||
@@ -3135,9 +3113,9 @@
         }
 
 
-        // -----------------------------------------------------
-        // Reset dnů
-        // -----------------------------------------------------
+        // =====================================================
+        // RESET DNŮ
+        // =====================================================
 
         document
             .querySelectorAll(
@@ -3154,9 +3132,9 @@
             });
 
 
-        // -----------------------------------------------------
-        // Reset školy
-        // -----------------------------------------------------
+        // =====================================================
+        // RESET ŠKOL
+        // =====================================================
 
         document
             .querySelectorAll(
@@ -3301,10 +3279,6 @@
             });
 
 
-            // -------------------------------------------------
-            // Naplnění filtrů
-            // -------------------------------------------------
-
             naplnFiltrPoradu();
 
             naplnFiltrCasu();
@@ -3320,7 +3294,7 @@
 
 
             // =================================================
-            // KONTROLA NEZAŘAZENÝCH POŘADŮ
+            // NEZAŘAZENÉ POŘADY
             // =================================================
 
             let nezarazene =
@@ -3351,7 +3325,7 @@
 
 
             // =================================================
-            // DATUM PRVNÍHO NAČTENÉHO TERMÍNU
+            // PRVNÍ DATUM
             // =================================================
 
             let prvniDatum =
@@ -3378,7 +3352,7 @@
 
 
             // =================================================
-            // VAROVÁNÍ
+            // VAROVÁNÍ / HOTOVO
             // =================================================
 
             if (
@@ -3410,10 +3384,6 @@
 
 
             } else {
-
-                // =================================================
-                // BĚŽNÁ HLÁŠKA PO DOKONČENÍ
-                // =================================================
 
                 if (
                     prvniDatum
