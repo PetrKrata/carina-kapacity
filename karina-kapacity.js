@@ -4,30 +4,28 @@
     // CARINA – přehled kapacit školních pořadů
     // =========================================================
 
-
-    // =========================================================
-    // ZÁKLADNÍ NASTAVENÍ
-    // =========================================================
-
     const PANEL_ID = 'skolni-prehled-kapacit';
     const STYLE_ID = 'skolni-prehled-style';
+
+    document.getElementById(PANEL_ID)?.remove();
+    document.getElementById(STYLE_ID)?.remove();
+
+
+    // =========================================================
+    // NASTAVENÍ
+    // =========================================================
 
     const RESOURCE_STORAGE_KEY =
         'carina-skolni-prehled-resource';
 
-
-    // Výchozí období
     const VYCHOZI_OD = '2026-09';
     const VYCHOZI_DO = '2027-01';
 
-
-    // Výchozí časy
     const VYCHOZI_CASY = [
         '09:00',
         '10:15',
         '11:30'
     ];
-
 
     // JavaScript getDay():
     // 0 = ne
@@ -45,8 +43,6 @@
         5
     ]);
 
-
-    // Pořadí školních skupin ve filtru
     const PORADI_SKUPIN = [
         'MS',
         'ZS1',
@@ -59,73 +55,41 @@
     // EXTERNÍ JSON
     // =========================================================
 
-    // Hlavní zdroj:
-    // GitHub RAW
     const DATA_URL_RAW =
         'https://raw.githubusercontent.com/PetrKrata/carina-kapacity/main/porady-skupiny.json';
 
-
-    // Záložní zdroj:
-    // GitHub Pages
     const DATA_URL_PAGES =
         'https://petrkrata.github.io/carina-kapacity/porady-skupiny.json';
 
-
-    // Data načtená z JSON
     let CARINA_SKUPINY = {};
     let CARINA_PORADY_SKUPINY = {};
-
     let dataSkupinNactena = false;
 
-
-    // =========================================================
-    // ODSTRANĚNÍ STARÉHO PANELU
-    // =========================================================
-
-    document.getElementById(PANEL_ID)?.remove();
-    document.getElementById(STYLE_ID)?.remove();
-
-
-    // =========================================================
-    // NAČTENÍ JSON
-    // =========================================================
 
     async function nactiJSONZURL(url) {
 
         const separator =
-            url.includes('?')
-                ? '&'
-                : '?';
-
-        const urlBezCache =
-            url +
-            separator +
-            '_=' +
-            Date.now();
-
+            url.includes('?') ? '&' : '?';
 
         const response =
             await fetch(
-                urlBezCache,
+                url +
+                separator +
+                '_=' +
+                Date.now(),
                 {
                     method: 'GET',
-
                     mode: 'cors',
-
                     cache: 'no-store',
-
                     credentials: 'omit'
                 }
             );
 
-
         if (!response.ok) {
-
             throw new Error(
                 `HTTP ${response.status}`
             );
         }
-
 
         return await response.json();
     }
@@ -138,81 +102,62 @@
             DATA_URL_PAGES
         ];
 
-
         for (const url of adresy) {
 
             try {
 
-                console.log(
-                    'CARINA: načítám věkové skupiny:',
-                    url
-                );
-
-
                 const data =
                     await nactiJSONZURL(url);
-
 
                 if (
                     !data ||
                     typeof data !== 'object'
                 ) {
-
                     throw new Error(
-                        'JSON neobsahuje objekt.'
+                        'Neplatný formát JSON.'
                     );
                 }
-
 
                 if (
                     !data.skupiny ||
                     typeof data.skupiny !== 'object'
                 ) {
-
                     throw new Error(
-                        'Chybí objekt "skupiny".'
+                        'V JSON chybí objekt "skupiny".'
                     );
                 }
-
 
                 if (
                     !data.porady ||
                     typeof data.porady !== 'object'
                 ) {
-
                     throw new Error(
-                        'Chybí objekt "porady".'
+                        'V JSON chybí objekt "porady".'
                     );
                 }
-
 
                 CARINA_SKUPINY =
                     data.skupiny;
 
-
                 CARINA_PORADY_SKUPINY =
                     data.porady;
 
-
                 console.log(
-                    'CARINA: věkové skupiny načteny.',
+                    'CARINA: zařazení pořadů načteno.',
                     CARINA_PORADY_SKUPINY
                 );
 
-
                 return true;
-
 
             } catch (error) {
 
                 console.warn(
-                    'CARINA: nepodařilo se načíst:',
+                    'CARINA: nepodařilo se načíst data:',
                     url,
                     error
                 );
             }
         }
-
 
         CARINA_SKUPINY = {};
         CARINA_PORADY_SKUPINY = {};
@@ -234,10 +179,7 @@
                 resource
             );
 
-        } catch (e) {
-
-            // nevadí
-        }
+        } catch (e) {}
     }
 
 
@@ -258,23 +200,16 @@
 
     function zjistiResource() {
 
-        // -----------------------------------------------------
-        // 1. Resource v aktuální URL
-        // -----------------------------------------------------
-
+        // 1. Aktuální URL
         try {
 
-            const aktualniURL =
-                new URL(
-                    window.location.href
-                );
-
+            const url =
+                new URL(window.location.href);
 
             const resource =
-                aktualniURL
-                    .searchParams
-                    .get('resource');
-
+                url.searchParams.get(
+                    'resource'
+                );
 
             if (resource) {
 
@@ -283,21 +218,13 @@
                 return resource;
             }
 
-        } catch (e) {
-
-            // pokračujeme
-        }
+        } catch (e) {}
 
 
-        // -----------------------------------------------------
-        // 2. Resource v odkazu na stránce
-        // -----------------------------------------------------
-
+        // 2. Odkazy na stránce
         for (
             const odkaz
-            of document.querySelectorAll(
-                'a[href]'
-            )
+            of document.querySelectorAll('a[href]')
         ) {
 
             try {
@@ -308,12 +235,10 @@
                         window.location.origin
                     );
 
-
                 const resource =
-                    url
-                        .searchParams
-                        .get('resource');
-
+                    url.searchParams.get(
+                        'resource'
+                    );
 
                 if (resource) {
 
@@ -322,63 +247,49 @@
                     return resource;
                 }
 
-            } catch (e) {
-
-                // pokračujeme
-            }
+            } catch (e) {}
         }
 
 
-        // -----------------------------------------------------
-        // 3. Input name="resource"
-        // -----------------------------------------------------
-
-        const resourceInput =
+        // 3. Input
+        const input =
             document.querySelector(
                 '[name="resource"]'
             );
 
-
         if (
-            resourceInput &&
-            resourceInput.value
+            input &&
+            input.value
         ) {
 
             ulozResource(
-                resourceInput.value
+                input.value
             );
 
-            return resourceInput.value;
+            return input.value;
         }
 
 
-        // -----------------------------------------------------
         // 4. data-resource
-        // -----------------------------------------------------
-
-        const resourceElement =
+        const element =
             document.querySelector(
                 '[data-resource]'
             );
 
-
         if (
-            resourceElement &&
-            resourceElement.dataset.resource
+            element &&
+            element.dataset.resource
         ) {
 
             ulozResource(
-                resourceElement.dataset.resource
+                element.dataset.resource
             );
 
-            return resourceElement.dataset.resource;
+            return element.dataset.resource;
         }
 
 
-        // -----------------------------------------------------
-        // 5. Poslední známý resource
-        // -----------------------------------------------------
-
+        // 5. localStorage
         return nactiUlozenyResource();
     }
 
@@ -404,14 +315,8 @@
 
     function inputNaMesic(text) {
 
-        const [
-            rok,
-            mesic
-        ] =
-            text
-                .split('-')
-                .map(Number);
-
+        const [rok, mesic] =
+            text.split('-').map(Number);
 
         return {
             rok,
@@ -431,16 +336,13 @@
         const konec =
             inputNaMesic(doMesice);
 
-
         const vysledek = [];
-
 
         let rok =
             start.rok;
 
         let mesic =
             start.mesic;
-
 
         let pojistka = 0;
 
@@ -458,26 +360,20 @@
                 mesic
             });
 
-
             mesic++;
-
 
             if (mesic > 12) {
 
                 mesic = 1;
-
                 rok++;
             }
 
-
             pojistka++;
-
 
             if (pojistka > 24) {
                 break;
             }
         }
-
 
         return vysledek;
     }
@@ -489,7 +385,6 @@
             return 0;
         }
 
-
         const [
             den,
             mesic,
@@ -498,7 +393,6 @@
             datum
                 .split('.')
                 .map(Number);
-
 
         return new Date(
             rok,
@@ -513,7 +407,6 @@
         const dnes =
             new Date();
 
-
         return new Date(
             dnes.getFullYear(),
             dnes.getMonth(),
@@ -522,28 +415,11 @@
     }
 
 
-    function formatDnesniDatum() {
-
-        const d =
-            new Date();
-
-
-        return (
-            d.getDate() +
-            '.' +
-            (d.getMonth() + 1) +
-            '.' +
-            d.getFullYear()
-        );
-    }
-
-
     function denVTydnu(datum) {
 
         if (!datum) {
             return '';
         }
-
 
         const [
             den,
@@ -554,7 +430,6 @@
                 .split('.')
                 .map(Number);
 
-
         const dny = [
             'ne',
             'po',
@@ -564,7 +439,6 @@
             'pá',
             'so'
         ];
-
 
         return dny[
             new Date(
@@ -582,7 +456,6 @@
             return null;
         }
 
-
         const [
             den,
             mesic,
@@ -591,7 +464,6 @@
             datum
                 .split('.')
                 .map(Number);
-
 
         return new Date(
             rok,
@@ -607,7 +479,6 @@
             return 0;
         }
 
-
         const [
             hodina,
             minuta
@@ -615,7 +486,6 @@
             cas
                 .split(':')
                 .map(Number);
-
 
         return (
             hodina * 60 +
@@ -628,63 +498,34 @@
 
         const minuty =
             (8 * 60) +
-            (
-                (column - 2) *
-                15
-            );
-
+            ((column - 2) * 15);
 
         const hodiny =
             Math.floor(
                 minuty / 60
             );
 
-
         const mins =
             minuty % 60;
 
-
         return (
             String(hodiny)
-                .padStart(
-                    2,
-                    '0'
-                ) +
+                .padStart(2, '0') +
             ':' +
             String(mins)
-                .padStart(
-                    2,
-                    '0'
-                )
+                .padStart(2, '0')
         );
     }
 
 
     function escapeHTML(text) {
 
-        return String(
-            text ?? ''
-        )
-            .replaceAll(
-                '&',
-                '&amp;'
-            )
-            .replaceAll(
-                '<',
-                '&lt;'
-            )
-            .replaceAll(
-                '>',
-                '&gt;'
-            )
-            .replaceAll(
-                '"',
-                '&quot;'
-            )
-            .replaceAll(
-                "'",
-                '&#039;'
-            );
+        return String(text ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
     }
 
 
@@ -700,23 +541,18 @@
                 10
             );
 
-
         if (row) {
             return row;
         }
 
-
         const raw =
-            element.style.gridRow ||
-            '';
-
+            element.style.gridRow || '';
 
         row =
             parseInt(
                 raw.split('/')[0],
                 10
             );
-
 
         return row || null;
     }
@@ -730,13 +566,11 @@
                 10
             );
 
-
         let end =
             parseInt(
                 element.style.gridColumnEnd,
                 10
             );
-
 
         if (
             start &&
@@ -749,33 +583,25 @@
             };
         }
 
-
         const raw =
-            element.style.gridColumn ||
-            '';
-
+            element.style.gridColumn || '';
 
         const parts =
             raw
                 .split('/')
                 .map(
-                    x =>
+                    value =>
                         parseInt(
-                            x.trim(),
+                            value.trim(),
                             10
                         )
                 );
 
-
         start =
-            start ||
-            parts[0];
-
+            start || parts[0];
 
         end =
-            end ||
-            parts[1];
-
+            end || parts[1];
 
         return {
             start,
@@ -799,24 +625,20 @@
                 window.location.origin
             );
 
-
         url.searchParams.set(
             'year',
             rok
         );
-
 
         url.searchParams.set(
             'month',
             mesic
         );
 
-
         url.searchParams.set(
             'resource',
             resource
         );
-
 
         return url.toString();
     }
@@ -833,34 +655,26 @@
 
 
     // =========================================================
-    // ROZPOZNÁNÍ MODRÉHO POŘADU
+    // MODRÉ POŘADY
     // =========================================================
 
     function jeModryPorad(show) {
 
         const styleText =
             (
-                show.getAttribute(
-                    'style'
-                ) ||
+                show.getAttribute('style') ||
                 ''
             )
                 .toLowerCase()
-                .replace(
-                    /\s/g,
-                    ''
-                );
-
+                .replace(/\s/g, '');
 
         if (
             styleText.includes(
                 'background-color:#000075'
             )
         ) {
-
             return true;
         }
-
 
         const barva =
             (
@@ -868,11 +682,7 @@
                 ''
             )
                 .toLowerCase()
-                .replace(
-                    /\s/g,
-                    ''
-                );
-
+                .replace(/\s/g, '');
 
         return (
             barva === '#000075' ||
@@ -882,7 +692,7 @@
 
 
     // =========================================================
-    // ZPRACOVÁNÍ HTML MĚSÍCE
+    // ZPRACOVÁNÍ MĚSÍCE
     // =========================================================
 
     function zpracujMesic(
@@ -899,181 +709,162 @@
             .querySelectorAll(
                 '.day[data-date]'
             )
-            .forEach(
-                day => {
+            .forEach(day => {
 
-                    const row =
-                        gridRowStart(day);
+                const row =
+                    gridRowStart(day);
 
+                const datum =
+                    day.dataset.date;
 
-                    const datum =
-                        day.dataset.date;
+                if (
+                    row &&
+                    datum
+                ) {
 
-
-                    if (
-                        row &&
+                    dnyPodleRadku.set(
+                        row,
                         datum
-                    ) {
-
-                        dnyPodleRadku.set(
-                            row,
-                            datum
-                        );
-                    }
+                    );
                 }
-            );
+            });
 
 
         const porady = [];
 
 
         doc
-            .querySelectorAll(
-                '.show'
-            )
-            .forEach(
-                show => {
+            .querySelectorAll('.show')
+            .forEach(show => {
 
-                    if (
-                        !jeModryPorad(show)
-                    ) {
-                        return;
-                    }
-
-
-                    const nameElement =
-                        show.querySelector(
-                            '.name'
-                        );
-
-
-                    const capacityElement =
-                        show.querySelector(
-                            '.capacity'
-                        );
-
-
-                    if (
-                        !nameElement ||
-                        !capacityElement
-                    ) {
-                        return;
-                    }
-
-
-                    const nazev =
-                        nameElement
-                            .textContent
-                            .trim();
-
-
-                    const capacityId =
-                        capacityElement.id ||
-                        '';
-
-
-                    const scheduleId =
-                        capacityId.replace(
-                            /^capa/,
-                            ''
-                        );
-
-
-                    if (!scheduleId) {
-                        return;
-                    }
-
-
-                    const uuid =
-                        show.dataset.uuid ||
-                        '';
-
-
-                    if (!uuid) {
-                        return;
-                    }
-
-
-                    const row =
-                        gridRowStart(show);
-
-
-                    const columns =
-                        gridColumnBounds(
-                            show
-                        );
-
-
-                    if (
-                        !row ||
-                        !columns.start ||
-                        !columns.end
-                    ) {
-                        return;
-                    }
-
-
-                    const datum =
-                        dnyPodleRadku.get(
-                            row
-                        );
-
-
-                    if (!datum) {
-                        return;
-                    }
-
-
-                    const od =
-                        sloupecNaCas(
-                            columns.start
-                        );
-
-
-                    const doCas =
-                        sloupecNaCas(
-                            columns.end
-                        );
-
-
-                    porady.push({
-
-                        datum,
-
-                        od,
-
-                        do: doCas,
-
-                        nazev,
-
-                        scheduleId,
-
-                        uuid,
-
-                        rok,
-
-                        mesic,
-
-                        url:
-                            urlUdalosti(
-                                uuid
-                            ),
-
-                        volno: null,
-
-                        celkem: null
-                    });
+                if (
+                    !jeModryPorad(show)
+                ) {
+                    return;
                 }
-            );
+
+
+                const nameElement =
+                    show.querySelector(
+                        '.name'
+                    );
+
+                const capacityElement =
+                    show.querySelector(
+                        '.capacity'
+                    );
+
+
+                if (
+                    !nameElement ||
+                    !capacityElement
+                ) {
+                    return;
+                }
+
+
+                const nazev =
+                    nameElement
+                        .textContent
+                        .trim();
+
+
+                const capacityId =
+                    capacityElement.id ||
+                    '';
+
+
+                const scheduleId =
+                    capacityId.replace(
+                        /^capa/,
+                        ''
+                    );
+
+
+                if (!scheduleId) {
+                    return;
+                }
+
+
+                const uuid =
+                    show.dataset.uuid ||
+                    '';
+
+
+                if (!uuid) {
+                    return;
+                }
+
+
+                const row =
+                    gridRowStart(show);
+
+
+                const columns =
+                    gridColumnBounds(show);
+
+
+                if (
+                    !row ||
+                    !columns.start ||
+                    !columns.end
+                ) {
+                    return;
+                }
+
+
+                const datum =
+                    dnyPodleRadku.get(row);
+
+
+                if (!datum) {
+                    return;
+                }
+
+
+                const od =
+                    sloupecNaCas(
+                        columns.start
+                    );
+
+
+                const doCas =
+                    sloupecNaCas(
+                        columns.end
+                    );
+
+
+                porady.push({
+
+                    datum,
+
+                    od,
+
+                    do: doCas,
+
+                    nazev,
+
+                    scheduleId,
+
+                    uuid,
+
+                    rok,
+
+                    mesic,
+
+                    url:
+                        urlUdalosti(uuid),
+
+                    volno: null,
+
+                    celkem: null
+                });
+            });
 
 
         return porady;
     }
 
-
-    // =========================================================
-    // NAČTENÍ MĚSÍCE
-    // =========================================================
 
     async function nactiMesic(
         rok,
@@ -1088,9 +879,7 @@
                 ),
                 {
                     method: 'GET',
-
-                    credentials:
-                        'same-origin'
+                    credentials: 'same-origin'
                 }
             );
 
@@ -1133,7 +922,6 @@
         if (
             ids.length === 0
         ) {
-
             return {};
         }
 
@@ -1184,39 +972,34 @@
         const mapa = {};
 
 
-        json.forEach(
-            item => {
+        json.forEach(item => {
 
-                mapa[
-                    String(
-                        item.schedule_id
+            mapa[
+                String(
+                    item.schedule_id
+                )
+            ] = {
+
+                volno:
+                    Number(
+                        item.available
+                    ),
+
+                celkem:
+                    Number(
+                        item.total
                     )
-                ] = {
-
-                    volno:
-                        Number(
-                            item.available
-                        ),
-
-                    celkem:
-                        Number(
-                            item.total
-                        )
-                };
-            }
-        );
+            };
+        });
 
 
         return mapa;
     }
 
 
-    async function nactiKapacityPoDavkach(
-        ids
-    ) {
+    async function nactiKapacityPoDavkach(ids) {
 
         const vysledek = {};
-
 
         const DAVKA = 150;
 
@@ -1233,12 +1016,10 @@
                     i + DAVKA
                 );
 
-
             const cast =
                 await nactiKapacity(
                     davka
                 );
-
 
             Object.assign(
                 vysledek,
@@ -1260,7 +1041,6 @@
             'style'
         );
 
-
     style.id =
         STYLE_ID;
 
@@ -1270,12 +1050,15 @@
 #${PANEL_ID} {
     position: fixed;
     z-index: 999999;
+
     top: 20px;
     left: 50%;
+
     transform: translateX(-50%);
 
     width: calc(100% - 40px);
     max-width: 1250px;
+
     max-height: calc(100vh - 40px);
 
     overflow: auto;
@@ -1306,26 +1089,17 @@
 
 #${PANEL_ID} .hlavicka {
     position: sticky;
-
     top: 0;
-
     z-index: 20;
 
     display: flex;
-
-    justify-content:
-        space-between;
-
+    justify-content: space-between;
     align-items: center;
 
-    padding:
-        12px 16px;
+    padding: 12px 16px;
 
-    background:
-        #20242a;
-
-    color:
-        white;
+    background: #20242a;
+    color: white;
 
     border-radius:
         10px 10px 0 0;
@@ -1334,186 +1108,132 @@
 
 #${PANEL_ID} .hlavicka h2 {
     margin: 0;
-
-    font-size:
-        18px;
+    font-size: 18px;
 }
 
 
 #${PANEL_ID} .zavrit {
     border: none;
+    background: transparent;
+    color: white;
 
-    background:
-        transparent;
+    font-size: 23px;
+    line-height: 1;
 
-    color:
-        white;
-
-    font-size:
-        23px;
-
-    line-height:
-        1;
-
-    cursor:
-        pointer;
+    cursor: pointer;
 }
 
 
 #${PANEL_ID} .obsah {
-    padding:
-        15px;
+    padding: 15px;
 }
 
 
 #${PANEL_ID} .ovladani {
-    display:
-        flex;
+    display: flex;
+    flex-direction: column;
 
-    flex-direction:
-        column;
+    gap: 12px;
 
-    gap:
-        12px;
+    padding: 15px;
 
-    padding:
-        15px;
+    background: #f3f4f6;
 
-    background:
-        #f3f4f6;
+    border-radius: 8px;
 
-    border-radius:
-        8px;
-
-    margin-bottom:
-        15px;
+    margin-bottom: 15px;
 }
 
 
 #${PANEL_ID} .ovladani-radek {
-    display:
-        flex;
+    display: flex;
+    flex-wrap: wrap;
 
-    flex-wrap:
-        wrap;
+    gap: 18px;
 
-    gap:
-        18px;
-
-    align-items:
-        center;
+    align-items: center;
 }
 
 
 #${PANEL_ID} label {
-    font-weight:
-        600;
+    font-weight: 600;
 }
 
 
 #${PANEL_ID} input,
 #${PANEL_ID} select,
 #${PANEL_ID} button {
-    font:
-        inherit;
+    font: inherit;
 }
 
 
 #${PANEL_ID} input[type="month"],
 #${PANEL_ID} input[type="number"],
 #${PANEL_ID} select {
-    padding:
-        6px 8px;
 
-    border:
-        1px solid #aaa;
+    padding: 6px 8px;
 
-    border-radius:
-        5px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
 
-    background:
-        white;
+    background: white;
 }
 
 
 #${PANEL_ID} #pocet-zaku {
-    width:
-        80px;
+    width: 80px;
 }
 
 
 #${PANEL_ID} #hledat {
-    padding:
-        8px 15px;
 
-    border:
-        none;
+    padding: 8px 15px;
 
-    border-radius:
-        5px;
+    border: none;
+    border-radius: 5px;
 
-    background:
-        #1d5fa7;
+    background: #1d5fa7;
+    color: white;
 
-    color:
-        white;
+    font-weight: bold;
 
-    font-weight:
-        bold;
-
-    cursor:
-        pointer;
+    cursor: pointer;
 }
 
 
 #${PANEL_ID} #hledat:hover {
-    background:
-        #174e89;
+    background: #174e89;
 }
 
 
 #${PANEL_ID} #hledat:disabled {
-    opacity:
-        0.6;
-
-    cursor:
-        wait;
+    opacity: 0.6;
+    cursor: wait;
 }
 
 
 #${PANEL_ID} .vhodne-label {
-    display:
-        flex;
+    display: flex;
+    align-items: center;
 
-    align-items:
-        center;
+    gap: 6px;
 
-    gap:
-        6px;
-
-    white-space:
-        nowrap;
+    white-space: nowrap;
 }
 
 
 #${PANEL_ID} .porad-label {
-    display:
-        flex;
+    display: flex;
+    align-items: center;
 
-    align-items:
-        center;
-
-    gap:
-        7px;
+    gap: 7px;
 }
 
 
 #${PANEL_ID} .porad-label select {
-    min-width:
-        320px;
 
-    max-width:
-        500px;
+    min-width: 320px;
+    max-width: 500px;
 }
 
 
@@ -1522,92 +1242,65 @@
    ========================================================= */
 
 #${PANEL_ID} details.filtr {
-    position:
-        relative;
+    position: relative;
 }
 
 
 #${PANEL_ID} details.filtr summary {
-    min-width:
-        130px;
 
-    padding:
-        7px 10px;
+    min-width: 130px;
 
-    border:
-        1px solid #aaa;
+    padding: 7px 10px;
 
-    border-radius:
-        5px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
 
-    background:
-        white;
+    background: white;
 
-    cursor:
-        pointer;
+    cursor: pointer;
 
-    font-weight:
-        600;
+    font-weight: 600;
 
-    list-style:
-        none;
+    list-style: none;
 }
 
 
 #${PANEL_ID} details.filtr summary::-webkit-details-marker {
-    display:
-        none;
+    display: none;
 }
 
 
 #${PANEL_ID} details.filtr summary::after {
-    content:
-        " ▼";
-
-    font-size:
-        10px;
+    content: " ▼";
+    font-size: 10px;
 }
 
 
 #${PANEL_ID} details.filtr[open] summary::after {
-    content:
-        " ▲";
+    content: " ▲";
 }
 
 
 #${PANEL_ID} .filtr-menu {
-    position:
-        absolute;
 
-    top:
-        calc(100% + 4px);
+    position: absolute;
 
-    left:
-        0;
+    top: calc(100% + 4px);
+    left: 0;
 
-    z-index:
-        100;
+    z-index: 100;
 
-    min-width:
-        190px;
+    min-width: 190px;
+    max-height: 320px;
 
-    max-height:
-        320px;
+    overflow-y: auto;
 
-    overflow-y:
-        auto;
+    padding: 9px;
 
-    padding:
-        9px;
+    background: white;
 
-    background:
-        white;
-
-    border:
-        1px solid #aaa;
-
-    border-radius:
-        6px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
 
     box-shadow:
         0 4px 15px
@@ -1616,38 +1309,29 @@
 
 
 #${PANEL_ID} .filtr-menu label {
-    display:
-        flex;
 
-    align-items:
-        center;
+    display: flex;
+    align-items: center;
 
-    gap:
-        7px;
+    gap: 7px;
 
-    padding:
-        5px 4px;
+    padding: 5px 4px;
 
-    font-weight:
-        normal;
+    font-weight: normal;
 
-    white-space:
-        nowrap;
+    white-space: nowrap;
 
-    cursor:
-        pointer;
+    cursor: pointer;
 }
 
 
 #${PANEL_ID} .filtr-menu label:hover {
-    background:
-        #f1f3f5;
+    background: #f1f3f5;
 }
 
 
 #${PANEL_ID} .filtr-menu input {
-    margin:
-        0;
+    margin: 0;
 }
 
 
@@ -1656,35 +1340,28 @@
    ========================================================= */
 
 #${PANEL_ID} #stav {
-    margin-bottom:
-        12px;
 
-    padding:
-        8px 10px;
+    margin-bottom: 12px;
 
-    border-radius:
-        5px;
+    padding: 8px 10px;
 
-    background:
-        #eef2f6;
+    border-radius: 5px;
+
+    background: #eef2f6;
 }
 
 
 #${PANEL_ID} #stav.chyba {
-    background:
-        #ffe4e4;
 
-    color:
-        #900;
+    background: #ffe4e4;
+    color: #900;
 }
 
 
 #${PANEL_ID} #stav.varovani {
-    background:
-        #fff1c7;
 
-    color:
-        #664d03;
+    background: #fff1c7;
+    color: #664d03;
 }
 
 
@@ -1693,130 +1370,109 @@
    ========================================================= */
 
 #${PANEL_ID} table {
-    width:
-        100%;
 
-    border-collapse:
-        collapse;
+    width: 100%;
 
-    background:
-        white;
+    border-collapse: collapse;
+
+    background: white;
 }
 
 
 #${PANEL_ID} th,
 #${PANEL_ID} td {
-    padding:
-        7px 9px;
+
+    padding: 7px 9px;
 
     border-bottom:
         1px solid #ddd;
 
-    text-align:
-        left;
+    text-align: left;
 }
 
 
 #${PANEL_ID} th {
-    position:
-        sticky;
 
-    top:
-        47px;
+    position: sticky;
 
-    z-index:
-        10;
+    top: 47px;
 
-    background:
-        #e5e7eb;
+    z-index: 10;
 
-    white-space:
-        nowrap;
+    background: #e5e7eb;
+
+    white-space: nowrap;
 }
 
 
 #${PANEL_ID} th[data-sort] {
-    cursor:
-        pointer;
 
-    user-select:
-        none;
+    cursor: pointer;
+    user-select: none;
 }
 
 
 #${PANEL_ID} th[data-sort]:hover {
-    background:
-        #d6d9dd;
+    background: #d6d9dd;
 }
 
 
 #${PANEL_ID} tr.vhodne {
-    background:
-        #e7f7e7;
+    background: #e7f7e7;
 }
 
 
 #${PANEL_ID} tr.nevhodne {
-    background:
-        #fde9e9;
+    background: #fde9e9;
 }
 
 
 #${PANEL_ID} tr:hover {
-    filter:
-        brightness(0.97);
+    filter: brightness(0.97);
 }
 
 
 #${PANEL_ID} td a {
-    color:
-        #004b9b;
 
-    font-weight:
-        600;
+    color: #004b9b;
 
-    text-decoration:
-        none;
+    font-weight: 600;
+
+    text-decoration: none;
 }
 
 
 #${PANEL_ID} td a:hover {
-    text-decoration:
-        underline;
+    text-decoration: underline;
 }
 
 
 #${PANEL_ID} .datum-den {
-    margin-left:
-        3px;
 
-    font-weight:
-        bold;
+    margin-left: 3px;
 
-    color:
-        #555;
+    font-weight: bold;
+
+    color: #555;
 }
 
 
 #${PANEL_ID} .ano {
-    color:
-        #087a16;
 
-    font-weight:
-        bold;
+    color: #087a16;
+    font-weight: bold;
 }
 
 
 #${PANEL_ID} .ne {
-    color:
-        #b00020;
 
-    font-weight:
-        bold;
+    color: #b00020;
+    font-weight: bold;
 }
 
 
 #${PANEL_ID} .chyba-input {
+
     border-color:
         red !important;
 
@@ -1826,20 +1482,14 @@
 
 
 #${PANEL_ID} .bez-vysledku {
-    padding:
-        20px;
 
-    text-align:
-        center;
+    padding: 20px;
 
-    color:
-        #666;
+    text-align: center;
+
+    color: #666;
 }
 
-
-/* =========================================================
-   MENŠÍ OBRAZOVKA
-   ========================================================= */
 
 @media (max-width: 900px) {
 
@@ -1848,8 +1498,7 @@
         width:
             calc(100% - 15px);
 
-        top:
-            8px;
+        top: 8px;
 
         max-height:
             calc(100vh - 16px);
@@ -1857,24 +1506,18 @@
 
 
     #${PANEL_ID} .ovladani-radek {
-
-        gap:
-            10px;
+        gap: 10px;
     }
 
 
     #${PANEL_ID} .porad-label select {
 
-        min-width:
-            220px;
-
-        max-width:
-            100%;
+        min-width: 220px;
+        max-width: 100%;
     }
 }
 
 `;
-
 
     document.head.appendChild(
         style
@@ -1886,10 +1529,7 @@
     // =========================================================
 
     const panel =
-        document.createElement(
-            'div'
-        );
-
+        document.createElement('div');
 
     panel.id =
         PANEL_ID;
@@ -1919,15 +1559,12 @@
     <div class="ovladani">
 
 
-        <!-- =================================================
-             HORNÍ ŘÁDEK
-             ================================================= -->
+        <!-- HORNÍ ŘÁDEK -->
 
         <div class="ovladani-radek">
 
 
             <label>
-
                 Od:
 
                 <input
@@ -1935,12 +1572,10 @@
                     id="mesic-od"
                     value="${VYCHOZI_OD}"
                 >
-
             </label>
 
 
             <label>
-
                 Do:
 
                 <input
@@ -1948,12 +1583,10 @@
                     id="mesic-do"
                     value="${VYCHOZI_DO}"
                 >
-
             </label>
 
 
             <label>
-
                 Počet žáků:
 
                 <input
@@ -1963,7 +1596,6 @@
                     min="0"
                     step="1"
                 >
-
             </label>
 
 
@@ -1990,9 +1622,7 @@
         </div>
 
 
-        <!-- =================================================
-             SPODNÍ ŘÁDEK
-             ================================================= -->
+        <!-- SPODNÍ ŘÁDEK -->
 
         <div class="ovladani-radek">
 
@@ -2004,7 +1634,6 @@
                 <summary id="souhrn-casy">
                     Časy
                 </summary>
-
 
                 <div
                     id="filtr-casy"
@@ -2028,107 +1657,83 @@
                     Dny
                 </summary>
 
-
                 <div
                     id="filtr-dny"
                     class="filtr-menu"
                 >
 
-
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="1"
                         >
-
                         pondělí
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="2"
                             checked
                         >
-
                         úterý
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="3"
                             checked
                         >
-
                         středa
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="4"
                             checked
                         >
-
                         čtvrtek
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="5"
                             checked
                         >
-
                         pátek
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="6"
                         >
-
                         sobota
-
                     </label>
 
 
                     <label>
-
                         <input
                             type="checkbox"
                             class="filtr-den"
                             value="0"
                         >
-
                         neděle
-
                     </label>
-
 
                 </div>
 
@@ -2142,7 +1747,6 @@
                 <summary id="souhrn-skola">
                     Škola
                 </summary>
-
 
                 <div
                     id="filtr-skola"
@@ -2182,9 +1786,7 @@
 
 
     <div id="stav">
-
         Připravuji program…
-
     </div>
 
 
@@ -2204,14 +1806,13 @@
 
 `;
 
-
     document.body.appendChild(
         panel
     );
 
 
     // =========================================================
-    // PROMĚNNÉ PROGRAMU
+    // PROMĚNNÉ
     // =========================================================
 
     let vsechnyPorady = [];
@@ -2219,11 +1820,9 @@
 
     let razeni = {
 
-        sloupec:
-            'datum',
+        sloupec: 'datum',
 
-        smer:
-            'asc'
+        smer: 'asc'
     };
 
 
@@ -2236,24 +1835,20 @@
             'stav'
         );
 
-
     const vysledky =
         document.getElementById(
             'vysledky'
         );
-
 
     const hledatButton =
         document.getElementById(
             'hledat'
         );
 
-
     const pocetZakuInput =
         document.getElementById(
             'pocet-zaku'
         );
-
 
     const filtrPoradu =
         document.getElementById(
@@ -2262,7 +1857,7 @@
 
 
     // =========================================================
-    // STAVOVÁ HLÁŠKA
+    // STAV
     // =========================================================
 
     function nastavStav(
@@ -2279,7 +1874,7 @@
 
 
     // =========================================================
-    // FILTR POŘADU
+    // FILTR POŘADŮ
     // =========================================================
 
     function naplnFiltrPoradu() {
@@ -2289,8 +1884,8 @@
                 ...new Set(
                     vsechnyPorady
                         .map(
-                            p =>
-                                p.nazev
+                            porad =>
+                                porad.nazev
                         )
                         .filter(Boolean)
                 )
@@ -2305,33 +1900,26 @@
 
 
         filtrPoradu.innerHTML =
-            '<option value="">' +
-            'Všechny pořady' +
-            '</option>';
+            '<option value="">Všechny pořady</option>';
 
 
-        nazvy.forEach(
-            nazev => {
+        nazvy.forEach(nazev => {
 
-                const option =
-                    document.createElement(
-                        'option'
-                    );
-
-
-                option.value =
-                    nazev;
-
-
-                option.textContent =
-                    nazev;
-
-
-                filtrPoradu.appendChild(
-                    option
+            const option =
+                document.createElement(
+                    'option'
                 );
-            }
-        );
+
+            option.value =
+                nazev;
+
+            option.textContent =
+                nazev;
+
+            filtrPoradu.appendChild(
+                option
+            );
+        });
     }
 
 
@@ -2352,8 +1940,8 @@
                 ...new Set(
                     vsechnyPorady
                         .map(
-                            p =>
-                                p.od
+                            porad =>
+                                porad.od
                         )
                         .filter(Boolean)
                 )
@@ -2376,74 +1964,65 @@
             kontejner.innerHTML =
                 '<label>Žádné časy.</label>';
 
-
             aktualizujSouhrnCasu();
 
             return;
         }
 
 
-        casy.forEach(
-            cas => {
+        casy.forEach(cas => {
 
-                const label =
-                    document.createElement(
-                        'label'
-                    );
+            const label =
+                document.createElement(
+                    'label'
+                );
 
-
-                const checkbox =
-                    document.createElement(
-                        'input'
-                    );
-
-
-                checkbox.type =
-                    'checkbox';
-
-
-                checkbox.className =
-                    'filtr-cas';
-
-
-                checkbox.value =
-                    cas;
-
-
-                checkbox.checked =
-                    VYCHOZI_CASY.includes(
-                        cas
-                    );
-
-
-                checkbox.addEventListener(
-                    'change',
-                    () => {
-
-                        aktualizujSouhrnCasu();
-
-                        vykresli();
-                    }
+            const checkbox =
+                document.createElement(
+                    'input'
                 );
 
 
-                label.appendChild(
-                    checkbox
+            checkbox.type =
+                'checkbox';
+
+            checkbox.className =
+                'filtr-cas';
+
+            checkbox.value =
+                cas;
+
+            checkbox.checked =
+                VYCHOZI_CASY.includes(
+                    cas
                 );
 
 
-                label.appendChild(
-                    document.createTextNode(
-                        cas
-                    )
-                );
+            checkbox.addEventListener(
+                'change',
+                () => {
+
+                    aktualizujSouhrnCasu();
+
+                    vykresli();
+                }
+            );
 
 
-                kontejner.appendChild(
-                    label
-                );
-            }
-        );
+            label.appendChild(
+                checkbox
+            );
+
+            label.appendChild(
+                document.createTextNode(
+                    cas
+                )
+            );
+
+            kontejner.appendChild(
+                label
+            );
+        });
 
 
         aktualizujSouhrnCasu();
@@ -2616,90 +2195,82 @@
             kontejner.innerHTML =
                 '<label>Data skupin nejsou dostupná.</label>';
 
-
             aktualizujSouhrnSkoly();
 
             return;
         }
 
 
-        PORADI_SKUPIN.forEach(
-            kod => {
+        PORADI_SKUPIN.forEach(kod => {
 
-                const nazev =
-                    CARINA_SKUPINY[
-                        kod
-                    ];
-
-
-                if (!nazev) {
-                    return;
-                }
+            const nazev =
+                CARINA_SKUPINY[
+                    kod
+                ];
 
 
-                const label =
-                    document.createElement(
-                        'label'
-                    );
-
-
-                const checkbox =
-                    document.createElement(
-                        'input'
-                    );
-
-
-                checkbox.type =
-                    'checkbox';
-
-
-                checkbox.className =
-                    'filtr-skola-checkbox';
-
-
-                checkbox.value =
-                    kod;
-
-
-                // Výchozí stav:
-                // všechny školy
-                checkbox.checked =
-                    true;
-
-
-                checkbox.addEventListener(
-                    'change',
-                    () => {
-
-                        aktualizujSouhrnSkoly();
-
-                        if (
-                            vsechnyPorady.length
-                        ) {
-
-                            vykresli();
-                        }
-                    }
-                );
-
-
-                label.appendChild(
-                    checkbox
-                );
-
-
-                label.appendChild(
-                    document.createTextNode(
-                        nazev
-                    )
-                );
-
-
-                kontejner.appendChild(
-                    label
-                );
+            if (!nazev) {
+                return;
             }
-        );
+
+
+            const label =
+                document.createElement(
+                    'label'
+                );
+
+
+            const checkbox =
+                document.createElement(
+                    'input'
+                );
+
+
+            checkbox.type =
+                'checkbox';
+
+            checkbox.className =
+                'filtr-skola-checkbox';
+
+            checkbox.value =
+                kod;
+
+            checkbox.checked =
+                true;
+
+
+            checkbox.addEventListener(
+                'change',
+                () => {
+
+                    aktualizujSouhrnSkoly();
+
+                    if (
+                        vsechnyPorady.length
+                    ) {
+
+                        vykresli();
+                    }
+                }
+            );
+
+
+            label.appendChild(
+                checkbox
+            );
+
+
+            label.appendChild(
+                document.createTextNode(
+                    nazev
+                )
+            );
+
+
+            kontejner.appendChild(
+                label
+            );
+        });
 
 
         aktualizujSouhrnSkoly();
@@ -2792,8 +2363,6 @@
         vybraneSkoly
     ) {
 
-        // Pokud JSON není dostupný,
-        // školní filtr ignorujeme.
         if (
             !dataSkupinNactena
         ) {
@@ -2810,7 +2379,6 @@
             ];
 
 
-        // Žádná škola
         if (
             vybraneSkoly.size === 0
         ) {
@@ -2819,8 +2387,9 @@
         }
 
 
-        // Pokud jsou vybrané všechny,
-        // nevylučujeme ani nový nezařazený pořad.
+        // Všechny školy = žádné omezení.
+        // Díky tomu nezmizí ani případný nový nezařazený pořad.
+
         if (
             checkboxy.length > 0 &&
             vybraneSkoly.size ===
@@ -2850,26 +2419,88 @@
     // ŘAZENÍ
     // =========================================================
 
-    function seradPorady(
-        porady
-    ) {
+    function seradPorady(porady) {
 
         const kopie =
             [...porady];
 
 
-        kopie.sort(
-            (a, b) => {
+        kopie.sort((a, b) => {
 
-                let vysledek = 0;
-
-
-                switch (
-                    razeni.sloupec
-                ) {
+            let vysledek = 0;
 
 
-                    case 'datum':
+            switch (
+                razeni.sloupec
+            ) {
+
+
+                case 'datum':
+
+                    vysledek =
+                        datumNaCislo(
+                            a.datum
+                        ) -
+                        datumNaCislo(
+                            b.datum
+                        );
+
+
+                    if (
+                        vysledek === 0
+                    ) {
+
+                        vysledek =
+                            casNaMinuty(
+                                a.od
+                            ) -
+                            casNaMinuty(
+                                b.od
+                            );
+                    }
+
+                    break;
+
+
+                case 'cas':
+
+                    vysledek =
+                        casNaMinuty(
+                            a.od
+                        ) -
+                        casNaMinuty(
+                            b.od
+                        );
+
+
+                    if (
+                        vysledek === 0
+                    ) {
+
+                        vysledek =
+                            datumNaCislo(
+                                a.datum
+                            ) -
+                            datumNaCislo(
+                                b.datum
+                            );
+                    }
+
+                    break;
+
+
+                case 'porad':
+
+                    vysledek =
+                        a.nazev.localeCompare(
+                            b.nazev,
+                            'cs'
+                        );
+
+
+                    if (
+                        vysledek === 0
+                    ) {
 
                         vysledek =
                             datumNaCislo(
@@ -2892,124 +2523,56 @@
                                     b.od
                                 );
                         }
+                    }
 
-                        break;
-
-
-                    case 'cas':
-
-                        vysledek =
-                            casNaMinuty(
-                                a.od
-                            ) -
-                            casNaMinuty(
-                                b.od
-                            );
+                    break;
 
 
-                        if (
-                            vysledek === 0
-                        ) {
+                case 'volno':
 
-                            vysledek =
-                                datumNaCislo(
-                                    a.datum
-                                ) -
-                                datumNaCislo(
-                                    b.datum
-                                );
-                        }
+                    vysledek =
+                        Number(
+                            a.volno
+                        ) -
+                        Number(
+                            b.volno
+                        );
 
-                        break;
+                    break;
 
 
-                    case 'porad':
+                case 'kapacita':
 
-                        vysledek =
-                            a.nazev.localeCompare(
-                                b.nazev,
-                                'cs'
-                            );
+                    vysledek =
+                        Number(
+                            a.celkem
+                        ) -
+                        Number(
+                            b.celkem
+                        );
 
-
-                        if (
-                            vysledek === 0
-                        ) {
-
-                            vysledek =
-                                datumNaCislo(
-                                    a.datum
-                                ) -
-                                datumNaCislo(
-                                    b.datum
-                                );
-
-
-                            if (
-                                vysledek === 0
-                            ) {
-
-                                vysledek =
-                                    casNaMinuty(
-                                        a.od
-                                    ) -
-                                    casNaMinuty(
-                                        b.od
-                                    );
-                            }
-                        }
-
-                        break;
-
-
-                    case 'volno':
-
-                        vysledek =
-                            Number(
-                                a.volno
-                            ) -
-                            Number(
-                                b.volno
-                            );
-
-                        break;
-
-
-                    case 'kapacita':
-
-                        vysledek =
-                            Number(
-                                a.celkem
-                            ) -
-                            Number(
-                                b.celkem
-                            );
-
-                        break;
-                }
-
-
-                if (
-                    razeni.smer ===
-                    'desc'
-                ) {
-
-                    vysledek *= -1;
-                }
-
-
-                return vysledek;
+                    break;
             }
-        );
+
+
+            if (
+                razeni.smer ===
+                'desc'
+            ) {
+
+                vysledek *= -1;
+            }
+
+
+            return vysledek;
+        });
 
 
         return kopie;
     }
 
 
-    function sipkaRazeni(
-        sloupec
-    ) {
+    function sipkaRazeni(sloupec) {
 
         if (
             razeni.sloupec !==
@@ -3023,16 +2586,14 @@
         return (
             razeni.smer ===
             'asc'
-
                 ? ' ▲'
-
                 : ' ▼'
         );
     }
 
 
     // =========================================================
-    // VYKRESLENÍ VÝSLEDKŮ
+    // VYKRESLENÍ
     // =========================================================
 
     function vykresli() {
@@ -3042,9 +2603,7 @@
         ) {
 
             vysledky.innerHTML =
-                '<div class="bez-vysledku">' +
-                'Žádné načtené pořady.' +
-                '</div>';
+                '<div class="bez-vysledku">Žádné načtené pořady.</div>';
 
             return;
         }
@@ -3089,40 +2648,33 @@
                 porad => {
 
 
-                    // Kapacita nebyla načtena
                     if (
                         porad.volno ===
                         null
                     ) {
-
                         return false;
                     }
 
 
-                    // Minulost
                     if (
                         datumNaCislo(
                             porad.datum
                         ) <
                         dnes
                     ) {
-
                         return false;
                     }
 
 
-                    // Konkrétní pořad
                     if (
                         vybranyPorad &&
                         porad.nazev !==
                         vybranyPorad
                     ) {
-
                         return false;
                     }
 
 
-                    // Den týdne
                     const den =
                         cisloDneVTydnu(
                             porad.datum
@@ -3134,35 +2686,29 @@
                             den
                         )
                     ) {
-
                         return false;
                     }
 
 
-                    // Čas
                     if (
                         !vybraneCasy.has(
                             porad.od
                         )
                     ) {
-
                         return false;
                     }
 
 
-                    // Škola
                     if (
                         !odpovidaSkole(
                             porad,
                             vybraneSkoly
                         )
                     ) {
-
                         return false;
                     }
 
 
-                    // Pouze vhodné termíny
                     if (
                         Number.isInteger(
                             pocetZaku
@@ -3172,7 +2718,6 @@
                         porad.volno <
                         pocetZaku
                     ) {
-
                         return false;
                     }
 
@@ -3196,8 +2741,7 @@
 
 <div class="bez-vysledku">
 
-    Pro nastavené filtry nebyly nalezeny
-    žádné termíny.
+    Pro nastavené filtry nebyly nalezeny žádné termíny.
 
 </div>
 
@@ -3248,19 +2792,18 @@
 `;
 
 
-        zobrazene.forEach(
-            porad => {
+        zobrazene.forEach(porad => {
 
-                const vhodne =
-                    Number.isInteger(
-                        pocetZaku
-                    ) &&
-                    pocetZaku >= 0 &&
-                    porad.volno >=
-                    pocetZaku;
+            const vhodne =
+                Number.isInteger(
+                    pocetZaku
+                ) &&
+                pocetZaku >= 0 &&
+                porad.volno >=
+                pocetZaku;
 
 
-                html += `
+            html += `
 
 <tr class="${
     vhodne
@@ -3362,8 +2905,7 @@
 </tr>
 
 `;
-            }
-        );
+        });
 
 
         html += `
@@ -3379,51 +2921,45 @@
             html;
 
 
-        // Řazení
         vysledky
             .querySelectorAll(
                 'th[data-sort]'
             )
-            .forEach(
-                th => {
+            .forEach(th => {
 
-                    th.addEventListener(
-                        'click',
-                        () => {
+                th.addEventListener(
+                    'click',
+                    () => {
 
-                            const sloupec =
-                                th.dataset.sort;
-
-
-                            if (
-                                razeni.sloupec ===
-                                sloupec
-                            ) {
-
-                                razeni.smer =
-                                    razeni.smer ===
-                                    'asc'
-
-                                        ? 'desc'
-
-                                        : 'asc';
-
-                            } else {
-
-                                razeni.sloupec =
-                                    sloupec;
+                        const sloupec =
+                            th.dataset.sort;
 
 
-                                razeni.smer =
-                                    'asc';
-                            }
+                        if (
+                            razeni.sloupec ===
+                            sloupec
+                        ) {
 
+                            razeni.smer =
+                                razeni.smer ===
+                                'asc'
+                                    ? 'desc'
+                                    : 'asc';
 
-                            vykresli();
+                        } else {
+
+                            razeni.sloupec =
+                                sloupec;
+
+                            razeni.smer =
+                                'asc';
                         }
-                    );
-                }
-            );
+
+
+                        vykresli();
+                    }
+                );
+            });
     }
 
 
@@ -3464,9 +3000,9 @@
         );
 
 
-        // =====================================================
-        // KONTROLA POČTU ŽÁKŮ
-        // =====================================================
+        // -----------------------------------------------------
+        // Kontrola počtu žáků
+        // -----------------------------------------------------
 
         if (
             !Number.isInteger(
@@ -3497,9 +3033,9 @@
         }
 
 
-        // =====================================================
-        // KONTROLA OBDOBÍ
-        // =====================================================
+        // -----------------------------------------------------
+        // Kontrola období
+        // -----------------------------------------------------
 
         if (
             !od ||
@@ -3529,10 +3065,6 @@
         }
 
 
-        // =====================================================
-        // AKTUÁLNÍ MĚSÍC
-        // =====================================================
-
         const dnes =
             new Date();
 
@@ -3549,7 +3081,6 @@
                 );
 
 
-        // Celé období je v minulosti
         if (
             doMesice <
             aktualniMesic
@@ -3564,14 +3095,10 @@
         }
 
 
-        // Pokud "Od" leží v minulosti,
-        // začneme aktuálním měsícem.
         const efektivniOd =
             od <
             aktualniMesic
-
                 ? aktualniMesic
-
                 : od;
 
 
@@ -3608,25 +3135,38 @@
         }
 
 
-        // =====================================================
-        // RESET FILTRŮ
-        // =====================================================
+        // -----------------------------------------------------
+        // Reset dnů
+        // -----------------------------------------------------
 
         document
             .querySelectorAll(
                 `#${PANEL_ID} .filtr-den`
             )
-            .forEach(
-                checkbox => {
+            .forEach(checkbox => {
 
-                    checkbox.checked =
-                        VYCHOZI_DNY.has(
-                            Number(
-                                checkbox.value
-                            )
-                        );
-                }
-            );
+                checkbox.checked =
+                    VYCHOZI_DNY.has(
+                        Number(
+                            checkbox.value
+                        )
+                    );
+            });
+
+
+        // -----------------------------------------------------
+        // Reset školy
+        // -----------------------------------------------------
+
+        document
+            .querySelectorAll(
+                `#${PANEL_ID} .filtr-skola-checkbox`
+            )
+            .forEach(checkbox => {
+
+                checkbox.checked =
+                    true;
+            });
 
 
         filtrPoradu.value =
@@ -3642,11 +3182,8 @@
 
 
         aktualizujSouhrnDnu();
+        aktualizujSouhrnSkoly();
 
-
-        // =====================================================
-        // ZAČÁTEK HLEDÁNÍ
-        // =====================================================
 
         hledatButton.disabled =
             true;
@@ -3693,10 +3230,6 @@
                     );
 
 
-                // =================================================
-                // ODSTRANĚNÍ MINULÝCH TERMÍNŮ
-                // =================================================
-
                 const dnesTimestamp =
                     dnesBezCasu();
 
@@ -3721,10 +3254,6 @@
                 vsechnyNactene;
 
 
-            // =================================================
-            // ID PRO KAPACITY
-            // =================================================
-
             const ids =
                 [
                     ...new Set(
@@ -3741,8 +3270,7 @@
 
 
             nastavStav(
-                `Načteno ${vsechnyPorady.length} pořadů. ` +
-                `Zjišťuji volná místa…`
+                'Zjišťuji volná místa…'
             );
 
 
@@ -3752,37 +3280,30 @@
                 );
 
 
-            // =================================================
-            // SPOJENÍ KAPACIT S POŘADY
-            // =================================================
+            vsechnyPorady.forEach(porad => {
 
-            vsechnyPorady.forEach(
-                porad => {
-
-                    const kapa =
-                        kapacity[
-                            String(
-                                porad.scheduleId
-                            )
-                        ];
+                const kapa =
+                    kapacity[
+                        String(
+                            porad.scheduleId
+                        )
+                    ];
 
 
-                    if (kapa) {
+                if (kapa) {
 
-                        porad.volno =
-                            kapa.volno;
+                    porad.volno =
+                        kapa.volno;
 
-
-                        porad.celkem =
-                            kapa.celkem;
-                    }
+                    porad.celkem =
+                        kapa.celkem;
                 }
-            );
+            });
 
 
-            // =================================================
-            // FILTRY
-            // =================================================
+            // -------------------------------------------------
+            // Naplnění filtrů
+            // -------------------------------------------------
 
             naplnFiltrPoradu();
 
@@ -3795,10 +3316,6 @@
             aktualizujSouhrnSkoly();
 
 
-            // =================================================
-            // VÝSLEDKY
-            // =================================================
-
             vykresli();
 
 
@@ -3806,7 +3323,8 @@
             // KONTROLA NEZAŘAZENÝCH POŘADŮ
             // =================================================
 
-            let nezarazene = [];
+            let nezarazene =
+                [];
 
 
             if (
@@ -3832,6 +3350,37 @@
             }
 
 
+            // =================================================
+            // DATUM PRVNÍHO NAČTENÉHO TERMÍNU
+            // =================================================
+
+            let prvniDatum =
+                null;
+
+
+            if (
+                vsechnyPorady.length > 0
+            ) {
+
+                prvniDatum =
+                    [...vsechnyPorady]
+                        .sort(
+                            (a, b) =>
+                                datumNaCislo(
+                                    a.datum
+                                ) -
+                                datumNaCislo(
+                                    b.datum
+                                )
+                        )[0]
+                        .datum;
+            }
+
+
+            // =================================================
+            // VAROVÁNÍ
+            // =================================================
+
             if (
                 nezarazene.length > 0
             ) {
@@ -3843,17 +3392,44 @@
 
 
                 nastavStav(
-                    `Hotovo. Načteno ${vsechnyPorady.length} budoucích termínů. ` +
-                    `Pozor: ${nezarazene.length} pořadů není zařazeno do školní skupiny.`,
+                    `Prohledávání dokončeno. ` +
+                    (
+                        prvniDatum
+                            ? `Pořady načteny od data ${prvniDatum}. `
+                            : ''
+                    ) +
+                    `Pozor: ${nezarazene.length} ` +
+                    (
+                        nezarazene.length === 1
+                            ? 'pořad není zařazen'
+                            : 'pořadů není zařazeno'
+                    ) +
+                    ` do školní skupiny.`,
                     'varovani'
                 );
 
+
             } else {
 
-                nastavStav(
-                    `Hotovo. Načteno ${vsechnyPorady.length} budoucích školních termínů. ` +
-                    `Dnes je ${formatDnesniDatum()}.`
-                );
+                // =================================================
+                // BĚŽNÁ HLÁŠKA PO DOKONČENÍ
+                // =================================================
+
+                if (
+                    prvniDatum
+                ) {
+
+                    nastavStav(
+                        `Prohledávání dokončeno. ` +
+                        `Pořady načteny od data ${prvniDatum}.`
+                    );
+
+                } else {
+
+                    nastavStav(
+                        'Prohledávání dokončeno.'
+                    );
+                }
             }
 
 
@@ -3869,6 +3445,7 @@
                 error.message,
                 'chyba'
             );
+
 
         } finally {
 
@@ -3907,7 +3484,6 @@
     );
 
 
-    // Pouze vhodné
     document
         .getElementById(
             'jen-vhodne'
@@ -3926,7 +3502,6 @@
         );
 
 
-    // Pořad
     filtrPoradu.addEventListener(
         'change',
         () => {
@@ -3941,34 +3516,29 @@
     );
 
 
-    // Dny
     document
         .querySelectorAll(
             `#${PANEL_ID} .filtr-den`
         )
-        .forEach(
-            checkbox => {
+        .forEach(checkbox => {
 
-                checkbox.addEventListener(
-                    'change',
-                    () => {
+            checkbox.addEventListener(
+                'change',
+                () => {
 
-                        aktualizujSouhrnDnu();
+                    aktualizujSouhrnDnu();
 
+                    if (
+                        vsechnyPorady.length
+                    ) {
 
-                        if (
-                            vsechnyPorady.length
-                        ) {
-
-                            vykresli();
-                        }
+                        vykresli();
                     }
-                );
-            }
-        );
+                }
+            );
+        });
 
 
-    // Počet žáků
     pocetZakuInput.addEventListener(
         'input',
         () => {
@@ -3991,7 +3561,7 @@
 
 
     // =========================================================
-    // KLIKNUTÍ MIMO ROZBALOVACÍ FILTR
+    // KLIKNUTÍ MIMO FILTR
     // =========================================================
 
     document.addEventListener(
@@ -4003,7 +3573,6 @@
                     PANEL_ID
                 )
             ) {
-
                 return;
             }
 
@@ -4012,20 +3581,18 @@
                 .querySelectorAll(
                     'details.filtr[open]'
                 )
-                .forEach(
-                    detail => {
+                .forEach(detail => {
 
-                        if (
-                            !detail.contains(
-                                event.target
-                            )
-                        ) {
+                    if (
+                        !detail.contains(
+                            event.target
+                        )
+                    ) {
 
-                            detail.open =
-                                false;
-                        }
+                        detail.open =
+                            false;
                     }
-                );
+                });
         }
     );
 
@@ -4038,28 +3605,26 @@
         .querySelectorAll(
             `#${PANEL_ID} .filtr-den`
         )
-        .forEach(
-            checkbox => {
+        .forEach(checkbox => {
 
-                checkbox.checked =
-                    VYCHOZI_DNY.has(
-                        Number(
-                            checkbox.value
-                        )
-                    );
-            }
-        );
+            checkbox.checked =
+                VYCHOZI_DNY.has(
+                    Number(
+                        checkbox.value
+                    )
+                );
+        });
 
 
     aktualizujSouhrnDnu();
 
 
     // =========================================================
-    // NAČTENÍ DAT PRO ŠKOLY
+    // NAČTENÍ JSONU
     // =========================================================
 
     nastavStav(
-        'Načítám zařazení pořadů podle škol…'
+        'Načítám zařazení pořadů…'
     );
 
 
@@ -4071,24 +3636,16 @@
 
 
     // =========================================================
-    // VÝCHOZÍ STAV
+    // ÚVODNÍ HLÁŠKA
     // =========================================================
 
     if (
         dataSkupinNactena
     ) {
 
-        const pocetPoradu =
-            Object.keys(
-                CARINA_PORADY_SKUPINY
-            ).length;
-
-
         nastavStav(
-            `Připraveno k vyhledávání. ` +
-            `Načteno zařazení ${pocetPoradu} pořadů.`
+            'Připraveno k vyhledávání.'
         );
-
 
     } else {
 
