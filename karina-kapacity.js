@@ -399,7 +399,7 @@
         return new Date(
             dnes.getFullYear(),
             dnes.getMonth(),
-            dnes.getDate()
+            dnes.getDate() + 1
         ).getTime();
     }
 
