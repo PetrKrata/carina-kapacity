@@ -18,8 +18,6 @@
     const RESOURCE_STORAGE_KEY =
         'carina-skolni-prehled-resource';
 
-    const SEDE_SLOTY_KEY =
-        'carina-skolni-prehled-sede-sloty';
 
     const VYCHOZI_OD = '2026-09';
     const VYCHOZI_DO = '2027-01';
@@ -1238,32 +1236,9 @@
         background: #e7f7e7;
     }
 
-    #${PANEL_ID} .slot-polozka {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 5px;
-        background: #e7f7e7;
-    }
-
-    #${PANEL_ID} .slot-polozka.sedy {
-        background: #e1e1e1;
-        opacity: 0.65;
-    }
-
-    #${PANEL_ID} .slot-polozka.sedy a {
-        background: transparent;
-        color: #555;
-        text-decoration: line-through;
-    }
-
-    #${PANEL_ID} .slot-polozka button {
-        margin-right: 5px;
-        padding: 4px 6px;
-        border: 1px solid #aaa;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-        font-size: 11px;
+    #${PANEL_ID}.sloty-rezim .jen-mista {
+        opacity: 0.35;
+        pointer-events: none;
     }
 
 
@@ -1645,7 +1620,7 @@
             </label>
 
 
-            <label>
+            <label class="jen-mista">
                 Počet žáků:
 
                 <input
@@ -1658,7 +1633,7 @@
             </label>
 
 
-            <label class="vhodne-label">
+            <label class="vhodne-label jen-mista">
 
                 <input
                     type="checkbox"
@@ -1688,7 +1663,7 @@
 
             <!-- DNY -->
 
-            <details class="filtr">
+            <details class="filtr jen-mista">
 
                 <summary id="souhrn-dny">
                     Dny
@@ -1779,7 +1754,7 @@
 
             <!-- ČASY -->
 
-            <details class="filtr">
+            <details class="filtr jen-mista">
 
                 <summary id="souhrn-casy">
                     Časy
@@ -1801,7 +1776,7 @@
 
             <!-- ŠKOLA -->
 
-            <details class="filtr">
+            <details class="filtr jen-mista">
 
                 <summary id="souhrn-skola">
                     Škola
@@ -1823,7 +1798,7 @@
 
             <!-- POŘAD -->
 
-            <label class="porad-label">
+            <label class="porad-label jen-mista">
 
                 Pořad:
 
@@ -1878,25 +1853,6 @@
     let vsechnyPorady = [];
     let vsechnySloty = [];
     let zobrazeni = 'mista';
-    let sedeSloty = new Set();
-
-    try {
-        const ulozene = JSON.parse(localStorage.getItem(SEDE_SLOTY_KEY) || '[]');
-        if (Array.isArray(ulozene)) sedeSloty = new Set(ulozene);
-    } catch (error) {
-        console.warn('CARINA: označení slotů nelze načíst.', error);
-    }
-
-    function ulozSedeSloty() {
-        try {
-            localStorage.setItem(
-                SEDE_SLOTY_KEY,
-                JSON.stringify([...sedeSloty])
-            );
-        } catch (error) {
-            console.warn('CARINA: označení slotů nelze uložit.', error);
-        }
-    }
 
 
     let razeni = {
@@ -3136,20 +3092,21 @@
                   escapeHTML(denVTydnu(datum)) + '</td><td>' +
                   '<div class="sloty-casy">' +
                   sloty.map(slot =>
-                      '<span class="slot-polozka' +
-                      (sedeSloty.has(slot.url) ? ' sedy' : '') + '">' +
                       '<a href="' + escapeHTML(slot.url) +
                       '">' +
                       escapeHTML(slot.od) + '–' +
-                      escapeHTML(slot.do) + '</a>' +
-                      '<button type="button" class="oznac-slot" data-url="' +
-                      escapeHTML(slot.url) + '" title="' +
-                      (sedeSloty.has(slot.url) ? 'Obnovit slot' : 'Zašednout slot') +
-                      '">' +
-                      (sedeSloty.has(slot.url) ? 'Obnovit' : 'Zašednout') +
-                      '</button></span>'
+                      escapeHTML(slot.do) + '</a>'
                   ).join('') + '</div></td></tr>'
               ).join('') + '</tbody></table>';
+    }
+
+    function nastavRezimFiltru() {
+        const sloty = zobrazeni === 'sloty';
+        panel.classList.toggle('sloty-rezim', sloty);
+        panel.querySelectorAll('.jen-mista details[open], details.jen-mista[open]')
+            .forEach(detail => { detail.open = false; });
+        panel.querySelectorAll('.jen-mista input, .jen-mista select')
+            .forEach(input => { input.disabled = sloty; });
     }
 
     function aktualizujTlacitkoSlotu() {
@@ -3164,6 +3121,7 @@
     function prepniZobrazeni() {
         if (!vsechnySloty.length) return;
         zobrazeni = zobrazeni === 'mista' ? 'sloty' : 'mista';
+        nastavRezimFiltru();
         panel.querySelector('.hlavicka h2').textContent =
             zobrazeni === 'sloty'
                 ? 'Školní pořady – přehled volných slotů'
@@ -3391,6 +3349,7 @@
             [];
         vsechnySloty = [];
         zobrazeni = 'mista';
+        nastavRezimFiltru();
         panel.querySelector('.hlavicka h2').textContent =
             'Školní pořady – přehled volných míst';
         aktualizujTlacitkoSlotu();
@@ -3689,17 +3648,6 @@
 
     hledatSlotyButton.addEventListener('click', prepniZobrazeni);
 
-    vysledky.addEventListener('click', event => {
-        const button = event.target.closest('button.oznac-slot');
-        if (!button || !vysledky.contains(button)) return;
-
-        const url = button.dataset.url;
-        if (sedeSloty.has(url)) sedeSloty.delete(url);
-        else sedeSloty.add(url);
-
-        ulozSedeSloty();
-        vykresliSloty();
-    });
 
 
     document
