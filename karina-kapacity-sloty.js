@@ -1099,6 +1099,7 @@
 #${PANEL_ID} .hlavicka h2 {
     margin: 0;
     font-size: 18px;
+    margin-right: auto;
 }
 
 
@@ -1202,20 +1203,17 @@
     }
 
     #${PANEL_ID} #hledat-sloty {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%);
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        padding: 14px 9px;
+        flex: 0 0 210px;
+        width: 210px;
+        height: 38px;
+        padding: 5px 10px;
         border: none;
-        border-radius: 6px 0 0 6px;
+        border-radius: 5px;
         background: #277447;
         color: white;
         font-weight: bold;
         cursor: pointer;
-        z-index: 30;
+        margin-right: 18px;
     }
 
     #${PANEL_ID} #hledat-sloty:disabled {
@@ -1223,9 +1221,6 @@
         cursor: default;
     }
 
-    #${PANEL_ID} .obsah {
-        padding-right: 58px;
-    }
 
     #${PANEL_ID} .sloty-casy {
         display: flex;
@@ -1566,13 +1561,17 @@
 
     panel.innerHTML = `
 
-<div class="hlavicka">
+    <div class="hlavicka">
 
-    <h2>
-        Školní pořady – přehled volných míst
-    </h2>
+        <h2>
+            Školní pořady – přehled volných míst
+        </h2>
 
-    <button
+        <button id="hledat-sloty" type="button" disabled>
+            Volné sloty nenalezeny
+        </button>
+
+        <button
         class="zavrit"
         title="Zavřít"
     >
@@ -1830,9 +1829,6 @@
 
     </div>
 
-    <button id="hledat-sloty" type="button" disabled>
-        Volné sloty nenalezeny
-    </button>
 
 
 </div>
@@ -3022,17 +3018,38 @@
             }
         });
 
+        // Carina kreslí prázdnou zelenou mřížku i pod již
+        // založeným pořadem. Překryté intervaly nejsou volné.
+        const obsazene = new Map();
+        doc.querySelectorAll('.show, i.grid').forEach(element => {
+            const nazev = element.querySelector('.name')?.textContent.trim();
+            if (element.matches('i.grid') && nazev === '---') return;
+            const row = gridRowStart(element);
+            const columns = gridColumnBounds(element);
+            if (!row || !columns.start || !columns.end) return;
+            if (!obsazene.has(row)) obsazene.set(row, []);
+            obsazene.get(row).push(columns);
+        });
+
         const sloty = [];
         doc.querySelectorAll('i.grid[data-uuid]').forEach(cell => {
             if (cell.querySelector('.name')?.textContent.trim() !== '---') {
                 return;
             }
 
-            const datum = povoleneDny.get(gridRowStart(cell));
+            const row = gridRowStart(cell);
+            const datum = povoleneDny.get(row);
             const columns = gridColumnBounds(cell);
             const uuid = cell.dataset.uuid;
 
             if (!datum || !columns.start || !columns.end || !uuid) {
+                return;
+            }
+
+            if ((obsazene.get(row) || []).some(occupied =>
+                columns.start < occupied.end &&
+                occupied.start < columns.end
+            )) {
                 return;
             }
 
@@ -3084,6 +3101,10 @@
     function prepniZobrazeni() {
         if (!vsechnySloty.length) return;
         zobrazeni = zobrazeni === 'mista' ? 'sloty' : 'mista';
+        panel.querySelector('.hlavicka h2').textContent =
+            zobrazeni === 'sloty'
+                ? 'Školní pořady – přehled volných slotů'
+                : 'Školní pořady – přehled volných míst';
         if (zobrazeni === 'sloty') vykresliSloty();
         else vykresli();
         aktualizujTlacitkoSlotu();
@@ -3307,6 +3328,8 @@
             [];
         vsechnySloty = [];
         zobrazeni = 'mista';
+        panel.querySelector('.hlavicka h2').textContent =
+            'Školní pořady – přehled volných míst';
         aktualizujTlacitkoSlotu();
 
         nastavStav(
