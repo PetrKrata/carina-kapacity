@@ -1236,6 +1236,10 @@
         background: #e7f7e7;
     }
 
+    #${PANEL_ID} .slot-porad {
+        margin: 4px 0;
+    }
+
     #${PANEL_ID}.sloty-rezim .jen-mista {
         opacity: 0.35;
         pointer-events: none;
@@ -1852,6 +1856,7 @@
 
     let vsechnyPorady = [];
     let vsechnySloty = [];
+    let obsazenePoradySlotu = [];
     let zobrazeni = 'mista';
 
 
@@ -3035,6 +3040,21 @@
             if (!row || !columns.start || !columns.end) return;
             if (!obsazene.has(row)) obsazene.set(row, []);
             obsazene.get(row).push(columns);
+            const datum = povoleneDny.get(row);
+            if (datum) {
+                const uuid = element.dataset.uuid;
+                obsazenePoradySlotu.push({
+                    datum,
+                    od: sloupecNaCas(columns.start),
+                    do: sloupecNaCas(columns.end),
+                    nazev: nazev || 'Obsazeno',
+                    scheduleId: (element.querySelector('.capacity')?.id || '')
+                        .replace(/^capa/, ''),
+                    url: uuid ? urlUdalosti(uuid) : null,
+                    volno: null,
+                    celkem: null
+                });
+            }
         });
 
         const sloty = [];
@@ -3085,18 +3105,37 @@
 
         vysledky.innerHTML = !vsechnySloty.length
             ? '<div class="bez-vysledku">Žádné volné sloty v období.</div>'
-            : '<table><thead><tr><th>Datum</th><th>Volné sloty</th>' +
+            : '<table><thead><tr><th>Datum</th><th>9:00</th>' +
+              '<th>10:15</th><th>11:30</th>' +
               '</tr></thead><tbody>' +
               [...podleDne].map(([datum, sloty]) =>
                   '<tr><td>' + escapeHTML(datum) + ' ' +
-                  escapeHTML(denVTydnu(datum)) + '</td><td>' +
-                  '<div class="sloty-casy">' +
-                  sloty.map(slot =>
-                      '<a href="' + escapeHTML(slot.url) +
-                      '">' +
-                      escapeHTML(slot.od) + '–' +
-                      escapeHTML(slot.do) + '</a>'
-                  ).join('') + '</div></td></tr>'
+                  escapeHTML(denVTydnu(datum)) + '</td>' +
+                  ['09:00', '10:15', '11:30'].map(cas => {
+                      const slot = sloty.find(item => item.od === cas);
+                      if (slot) return '<td><div class="sloty-casy"><a href="' +
+                          escapeHTML(slot.url) + '">Volný slot<br>' +
+                          escapeHTML(slot.od) + '–' + escapeHTML(slot.do) +
+                          '</a></div></td>';
+                      const porady = obsazenePoradySlotu.filter(porad =>
+                          porad.datum === datum &&
+                          casNaMinuty(porad.od) <= casNaMinuty(cas) &&
+                          casNaMinuty(cas) < casNaMinuty(porad.do)
+                      );
+                      return '<td>' + (porady.length ? porady.map(porad => {
+                          const kapacitaZnama = Number.isFinite(porad.volno) &&
+                              Number.isFinite(porad.celkem);
+                          const obsazenost = kapacitaZnama
+                              ? porad.volno + '/' + porad.celkem
+                              : 'nezjištěna';
+                          const nazev = escapeHTML(porad.nazev);
+                          return '<div class="slot-porad">' + (porad.url
+                              ? '<a href="' + escapeHTML(porad.url) + '">' +
+                                nazev + '</a>' : nazev) +
+                              '<br><small title="Volná místa / celková kapacita">Volná místa: ' + escapeHTML(obsazenost) +
+                              '</small></div>';
+                      }).join('') : '—') + '</td>';
+                  }).join('') + '</tr>'
               ).join('') + '</tbody></table>';
     }
 
@@ -3348,6 +3387,7 @@
         vsechnyPorady =
             [];
         vsechnySloty = [];
+        obsazenePoradySlotu = [];
         zobrazeni = 'mista';
         nastavRezimFiltru();
         panel.querySelector('.hlavicka h2').textContent =
@@ -3425,6 +3465,7 @@
                 [
                     ...new Set(
                         vsechnyPorady
+                            .concat(obsazenePoradySlotu)
                             .map(
                                 porad =>
                                     String(
@@ -3447,7 +3488,7 @@
                 );
 
 
-            vsechnyPorady.forEach(porad => {
+            vsechnyPorady.concat(obsazenePoradySlotu).forEach(porad => {
 
                 const kapa =
                     kapacity[
@@ -3483,7 +3524,8 @@
             aktualizujSouhrnSkoly();
 
 
-            vykresli();
+            if (zobrazeni === 'sloty') vykresliSloty();
+            else vykresli();
 
 
             // =================================================
