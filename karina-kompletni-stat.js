@@ -3155,8 +3155,11 @@
               '<th>10:15</th><th>11:30</th>' +
               '</tr></thead><tbody>' +
               [...podleDne].map(([datum, sloty]) =>
-                  '<tr><td>' + escapeHTML(datum) + ' ' +
-                  escapeHTML(denVTydnu(datum)) + '</td>' +
+                  '<tr><td><a href="' + escapeHTML(urlMesice(
+                      Number(datum.split('.')[2]), Number(datum.split('.')[1])
+                  )) + '" title="Zobrazit příslušný měsíc v Carině">' +
+                  escapeHTML(datum) + ' ' + escapeHTML(denVTydnu(datum)) +
+                  '</a></td>' +
                   ['09:00', '10:15', '11:30'].map(cas => {
                       const slot = sloty.find(item => item.od === cas);
                       if (slot) return '<td><div class="sloty-casy"><a href="' +
