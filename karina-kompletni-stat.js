@@ -3378,7 +3378,7 @@
         });
         const karty = [['pocet','Všechna uvedení'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
             ['temer','Zaplněno 90 až <100 %'],['mene','Zaplněno více než 0 až <90 %'],
-            ['prazdne','Zcela neobsazené (0 %)'],['nezname','Kapacita nezjištěna']];
+            ['prazdne','Neobsazené (0 %)'],['nezname','Kapacita nezjištěna']];
         const td = row => sloupce.slice(1).map(([k]) => '<td>' +
             (k === 'obsazenost' ? procentoStatistik(row[k]) : row[k]) + '</td>').join('');
         target.innerHTML = '<div class="stat-karty">' +
