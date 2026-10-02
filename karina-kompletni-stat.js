@@ -3380,7 +3380,7 @@
             return (a[sl] - b[sl]) * statistikyRazeni.smer || a.nazev.localeCompare(b.nazev,'cs');
         });
         const karty = [['pocet','Celkový počet pořadů'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
-            ['temer','Zaplněno 90 až 100 %'],['mene','Zaplněno 0 až <90 %'],
+            ['temer','Zaplněno 90 až 100 %'],['mene','Zaplněno 0 až 90 %'],
             ['prazdne','Neobsazené (0 %)']];
         const td = row => sloupce.slice(1).map(([k]) => '<td>' +
             (k === 'obsazenost' ? procentoStatistik(row[k]) : row[k]) + '</td>').join('');
