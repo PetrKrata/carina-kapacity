@@ -3370,7 +3370,7 @@
         const celkem = souhrnStatistik(statistickePorady);
         const radky = [...podleNazvu].map(([nazev, porady]) => ({nazev, porady, ...souhrnStatistik(porady)}));
         const sloupce = [['nazev','Pořad'],['pocet','Počet uvedení'],['objednano','Alespoň částečně obsazené'],
-            ['plne','100 %'],['temer','90 až <100 %'],['mene','Více než 0 až <90 %'],
+            ['plne','100 %'],['temer','90 až 100 %'],['mene','Více než 0 až 90 %'],
             ['prazdne','0 %'],['nezname','Nezjištěno'],['obsazenost','Celková zaplněnost']];
         radky.sort((a,b) => {
             const sl = statistikyRazeni.sloupec;
