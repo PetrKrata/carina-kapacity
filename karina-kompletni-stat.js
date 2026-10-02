@@ -3379,17 +3379,18 @@
             if (b[sl] === null) return -1;
             return (a[sl] - b[sl]) * statistikyRazeni.smer || a.nazev.localeCompare(b.nazev,'cs');
         });
-        const karty = [['pocet','Všechna uvedení'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
+        const karty = [['pocet','Celkový počet pořadů'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
             ['temer','Zaplněno 90 až <100 %'],['mene','Zaplněno více než 0 až <90 %'],
-            ['prazdne','Neobsazené (0 %)'],['nezname','Kapacita nezjištěna']];
+            ['prazdne','Neobsazené (0 %)']];
         const td = row => sloupce.slice(1).map(([k]) => '<td>' +
             (k === 'obsazenost' ? procentoStatistik(row[k]) : row[k]) + '</td>').join('');
         target.innerHTML = '<div class="stat-karty">' +
             '<div class="stat-karta">Různých pořadů<strong>' + podleNazvu.size + '</strong></div>' +
             karty.map(([k,n]) => '<button type="button" class="stat-karta" data-stat-skupina="' + k + '">' +
                 escapeHTML(n) + '<strong>' + celkem[k] + '</strong>' +
-                procentoStatistik(celkem.pocet ? celkem[k] / celkem.pocet * 100 : null) +
-                ' ze všech uvedení</button>').join('') +
+                (k === 'pocet' ? '' :
+                    procentoStatistik(celkem.pocet ? celkem[k] / celkem.pocet * 100 : null) +
+                    ' ze všech uvedení') + '</button>').join('') +
             '<div class="stat-karta">Celková zaplněnost<strong>' + procentoStatistik(celkem.obsazenost) +
             '</strong>Volno / kapacita: ' + celkem.volno + '/' + celkem.kapacita + '</div></div>' +
             (celkem.nezname ? '<p>U ' + celkem.nezname + ' uvedení chybí platná kapacita. Do výpočtu zaplněnosti a součtu míst nejsou zahrnuta.</p>' : '') +
