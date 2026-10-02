@@ -3370,7 +3370,7 @@
         const celkem = souhrnStatistik(statistickePorady);
         const radky = [...podleNazvu].map(([nazev, porady]) => ({nazev, porady, ...souhrnStatistik(porady)}));
         const sloupce = [['nazev','Pořad'],['pocet','Počet uvedení'],['objednano','Alespoň částečně obsazené'],
-            ['plne','100 %'],['temer','90 až 100 %'],['mene','Více než 0 až 90 %'],
+            ['plne','100 %'],['temer','90 až 100 %'],['mene','0 až 90 %'],
             ['prazdne','0 %'],['nezname','Nezjištěno'],['obsazenost','Celková zaplněnost']];
         radky.sort((a,b) => {
             const sl = statistikyRazeni.sloupec;
@@ -3380,7 +3380,7 @@
             return (a[sl] - b[sl]) * statistikyRazeni.smer || a.nazev.localeCompare(b.nazev,'cs');
         });
         const karty = [['pocet','Celkový počet pořadů'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
-            ['temer','Zaplněno 90 až <100 %'],['mene','Zaplněno více než 0 až <90 %'],
+            ['temer','Zaplněno 90 až 100 %'],['mene','Zaplněno 0 až <90 %'],
             ['prazdne','Neobsazené (0 %)']];
         const td = row => sloupce.slice(1).map(([k]) => '<td>' +
             (k === 'obsazenost' ? procentoStatistik(row[k]) : row[k]) + '</td>').join('');
