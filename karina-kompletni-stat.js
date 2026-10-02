@@ -3366,7 +3366,7 @@
         }
         const celkem = souhrnStatistik(statistickePorady);
         const radky = [...podleNazvu].map(([nazev, porady]) => ({nazev, porady, ...souhrnStatistik(porady)}));
-        const sloupce = [['nazev','Pořad'],['pocet','Počet uvedení'],['objednano','S objednávkou'],
+        const sloupce = [['nazev','Pořad'],['pocet','Počet uvedení'],['objednano','Alespoň částečně obsazené'],
             ['plne','100 %'],['temer','90 až <100 %'],['mene','Více než 0 až <90 %'],
             ['prazdne','0 %'],['nezname','Nezjištěno'],['obsazenost','Celková zaplněnost']];
         radky.sort((a,b) => {
@@ -3376,9 +3376,9 @@
             if (b[sl] === null) return -1;
             return (a[sl] - b[sl]) * statistikyRazeni.smer || a.nazev.localeCompare(b.nazev,'cs');
         });
-        const karty = [['pocet','Všechna uvedení'],['objednano','S objednávkou'],['plne','Zaplněno 100 %'],
+        const karty = [['pocet','Všechna uvedení'],['objednano','Alespoň částečně obsazené'],['plne','Zaplněno 100 %'],
             ['temer','Zaplněno 90 až <100 %'],['mene','Zaplněno více než 0 až <90 %'],
-            ['prazdne','Bez objednávky (0 %)'],['nezname','Kapacita nezjištěna']];
+            ['prazdne','Zcela neobsazené (0 %)'],['nezname','Kapacita nezjištěna']];
         const td = row => sloupce.slice(1).map(([k]) => '<td>' +
             (k === 'obsazenost' ? procentoStatistik(row[k]) : row[k]) + '</td>').join('');
         target.innerHTML = '<div class="stat-karty">' +
