@@ -1469,6 +1469,16 @@
     user-select: none;
 }
 
+/* Záhlaví statistik patří nad řádky, bez posouvání uvnitř tabulky. */
+#${PANEL_ID} #statistiky-panel thead,
+#${PANEL_ID} #statistiky-panel thead tr,
+#${PANEL_ID} #statistiky-panel th {
+    position: static;
+    top: auto;
+    inset: auto;
+    z-index: auto;
+}
+
 
 #${PANEL_ID} th[data-sort]:hover {
     background: #d6d9dd;
@@ -3215,19 +3225,12 @@
     let predStatistikami = 'mista';
 
     function nastavStatistickeObdobi() {
-        const praha = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Europe/Prague', year: 'numeric', month: '2-digit', day: '2-digit'
-        }).formatToParts(new Date());
-        const cast = typ => Number(praha.find(x => x.type === typ).value);
-        const dnes = new Date(cast('year'), cast('month') - 1, cast('day'));
         const iso = datum => datum.getFullYear() + '-' +
             String(datum.getMonth() + 1).padStart(2, '0') + '-' +
             String(datum.getDate()).padStart(2, '0');
-        const vcera = new Date(dnes.getFullYear(), dnes.getMonth(), dnes.getDate() - 1);
-        const zacatek = new Date(dnes.getFullYear(), dnes.getMonth() - 1, 1);
-        const konec = new Date(dnes.getFullYear(), dnes.getMonth(), 0);
-        for (const id of ['stat-od', 'stat-do']) document.getElementById(id).max = iso(vcera);
-        document.getElementById('stat-od').value = iso(zacatek);
+        const {rok, mesic} = inputNaMesic(VYCHOZI_DO);
+        const konec = new Date(rok, mesic, 0);
+        document.getElementById('stat-od').value = VYCHOZI_OD + '-01';
         document.getElementById('stat-do').value = iso(konec);
     }
 
@@ -3298,7 +3301,7 @@
         const od = odInput.value;
         const konec = doInput.value;
         if (!od || !konec || !odInput.checkValidity() || !doInput.checkValidity() || od > konec) {
-            info.textContent = 'Vyber platné minulé období. Datum Od musí být nejpozději datum Do.';
+            info.textContent = 'Vyber platné období. Datum Od musí být nejpozději datum Do.';
             info.className = 'stat-chyba';
             return;
         }
