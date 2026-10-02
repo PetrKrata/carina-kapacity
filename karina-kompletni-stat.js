@@ -1250,7 +1250,7 @@
     #${PANEL_ID} #stat-nacist { background:#1763a8; color:white; padding:10px 16px; border:0; border-radius:5px; font-weight:bold; cursor:pointer; }
     #${PANEL_ID} #stat-nacist:disabled { opacity:.5; cursor:wait; }
     #${PANEL_ID} .stat-karty { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:16px 0; }
-    #${PANEL_ID} .stat-karta { border:1px solid #d6dce3; border-radius:8px; padding:12px; background:#eef3f8; color:#20242a; text-align:left; font:inherit; }
+    #${PANEL_ID} .stat-karta { display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; border:1px solid #d6dce3; border-radius:8px; padding:12px; background:#eef3f8; color:#20242a; text-align:left; font:inherit; }
     #${PANEL_ID} button.stat-karta { cursor:pointer; }
     #${PANEL_ID} .stat-karta strong { display:block; font-size:24px; margin:6px 0; }
     #${PANEL_ID} .stat-link { border:0; background:none; color:#075bab; cursor:pointer; font:inherit; text-align:left; padding:0; }
